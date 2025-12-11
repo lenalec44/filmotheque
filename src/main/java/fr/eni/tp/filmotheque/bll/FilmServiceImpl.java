@@ -3,8 +3,10 @@ package fr.eni.tp.filmotheque.bll;
 import fr.eni.tp.filmotheque.bo.Film;
 import fr.eni.tp.filmotheque.bo.Participant;
 import fr.eni.tp.filmotheque.dal.FilmRepository;
+import fr.eni.tp.filmotheque.dal.ParticipantRepository;
+import fr.eni.tp.filmotheque.dal.ParticipantRepositoryImpl;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -14,9 +16,12 @@ import java.util.List;
 public class FilmServiceImpl implements FilmService {
 
     private FilmRepository filmRepository;
+    @Autowired
+    private  ParticipantRepository participantRepository;
 
-    public FilmServiceImpl(FilmRepository filmRepository) {
+    public FilmServiceImpl(FilmRepository filmRepository, ParticipantRepository participantRepository) {
         this.filmRepository = filmRepository;
+        this.participantRepository = participantRepository;
     }
 
     @Override
@@ -32,13 +37,14 @@ public class FilmServiceImpl implements FilmService {
 
     @Override
     public List<Participant> consulterParticipants() {
-        return List.of();
+        return participantRepository.findAllParticipants();
     }
 
     @Override
     public Participant consulterParticipantParId(long id) {
-        return null;
+        return participantRepository.findParticipantById((int)id);
     }
+
 
     @Override
     public void creerFilm(Film film) {
