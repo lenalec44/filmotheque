@@ -9,7 +9,7 @@ public class Genre implements Serializable {
 	 */
 	private static final long serialVersionUID = 1L;
 	//Attributs
-	private long id;
+	private Integer id;
 	private String titre;
 
 	//Default Constructor
@@ -21,17 +21,22 @@ public class Genre implements Serializable {
 		this.titre = titre;
 	}
 
-	public Genre(long id, String titre) {
+    public Genre(Integer id) {
+        this.id = id;
+    }
+
+
+    public Genre(Integer id, String titre) {
 		this.id = id;
 		this.titre = titre;
 	}
 	
 	//Getter + Setter
-	public long getId() {
+	public Integer getId() {
 		return id;
 	}
 
-	public void setId(long id) {
+	public void setId(Integer id) {
 		this.id = id;
 	}
 

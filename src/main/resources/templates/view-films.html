@@ -35,10 +35,10 @@
 			</thead>
 			<tbody>
 				<tr th:each="f : ${films}">
-					<td th:text="${f.genre != null ? f.genre.titre : '—'}"></td>
+					<td th:text="${f.genre.titre}"></td>
 					<td th:text="${f.annee}"></td>
 					<td th:text="${f.titre}"></td>
-					<td th:text="${f.realisateur != null ? f.realisateur.prenom + ' ' + f.realisateur.nom : '—'}"></td>
+					<td th:text="${f.realisateur.prenom + ' ' + f.realisateur.nom}"></td>
 					<td><a th:href="@{/films/detail(id=${f.id})}">Détail</a></td>
 				</tr>
 			</tbody>

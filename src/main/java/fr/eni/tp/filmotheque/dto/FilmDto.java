@@ -1,84 +1,116 @@
 package fr.eni.tp.filmotheque.dto;
 
+import fr.eni.tp.filmotheque.bo.Avis;
+import fr.eni.tp.filmotheque.bo.Genre;
 import fr.eni.tp.filmotheque.bo.Participant;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
-public class FilmDto {
-
-    @NotNull(message = "Le genre est obligatoire")
-    private Long genreId;
-
-    @NotBlank(message = "Le titre est obligatoire")
+public class FilmDto implements Serializable {
+	/**
+	 * Numéro de sérialisation
+	 */
+	private static final long serialVersionUID = 1L;
+    @NotBlank
+    @Size(min = 1, max = 100)
     private String titre;
+    @Min(1895)
+	private int annee;
+    @Min(0)
+	private int duree;
+	private String synopsis;
 
-    @NotNull(message = "L' année est obligatoire")
-    @Min(value = 1900, message = "L' année doit être supérieure à 1900")
-    private Integer annee;
+    @NotNull
+    private int genreId;
 
-    @NotNull(message = "La durée est obligatoire")
-    @Min(value = 1, message = "La durée doit être supérieure à 0")
-    private Integer duree;
+    @NotNull
+    private Integer realisateurId;
 
-    @NotBlank(message = "Le synopsis est obligatoire")
-    private String synopsis;
+    private List<Integer> acteursIds;
 
+	public FilmDto() {
+	}
 
-    private long realisateurId;
+	public FilmDto(String titre, int annee, int duree, String synopsis) {
+		this();
+		this.titre = titre;
+		this.annee = annee;
+		this.duree = duree;
+		this.synopsis = synopsis;
+	}
 
-    private List<Long> acteursId = new ArrayList<>();
+	public String getTitre() {
+		return titre;
+	}
 
+	public void setTitre(String titre) {
+		this.titre = titre;
+	}
 
-    public FilmDto() {
+	public int getAnnee() {
+		return annee;
+	}
+
+	public void setAnnee(int annee) {
+		this.annee = annee;
+	}
+
+	public int getDuree() {
+		return duree;
+	}
+
+	public void setDuree(int duree) {
+		this.duree = duree;
+	}
+
+	public String getSynopsis() {
+		return synopsis;
+	}
+
+	public void setSynopsis(String synopsis) {
+		this.synopsis = synopsis;
+	}
+
+    public Integer getGenreId() {
+        return genreId;
     }
 
-    public FilmDto(Long genreId, String titre, Integer annee, Integer duree, String synopsis, long realisateurId, List acteurId) {
+    public void setGenreId(Integer genreId) {
         this.genreId = genreId;
-        this.titre = titre;
-        this.annee = annee;
-        this.duree = duree;
-        this.synopsis = synopsis;
-        this.realisateurId = realisateurId;
-        this.acteursId = acteurId;
     }
 
-    public long getRealisateurId() {
+    public Integer getRealisateurId() {
         return realisateurId;
     }
-    public void setRealisateurId(long realisateurId) {
+
+    public void setRealisateurId(Integer realisateurId) {
         this.realisateurId = realisateurId;
     }
 
-    public List<Long> getActeursId() {
-        return acteursId;
-    }
-    public void setActeursId(List<Long> acteursId) {
-        this.acteursId = acteursId;
+    public List<Integer> getActeursIds() {
+        return acteursIds;
     }
 
-    // Getters et setters
-    public Long getGenreId() { return genreId; }
-    public void setGenreId(Long genreId) { this.genreId = genreId; }
+    public void setActeursIds(List<Integer> acteursIds) {
+        this.acteursIds = acteursIds;
+    }
 
-    public String getTitre() { return titre; }
-    public void setTitre(String titre) { this.titre = titre; }
 
-    public Integer getAnnee() { return annee; }
-    public void setAnnee(Integer annee) { this.annee = annee; }
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof FilmDto filmDto)) return false;
+        return annee == filmDto.annee && duree == filmDto.duree && Objects.equals(titre, filmDto.titre) && Objects.equals(synopsis, filmDto.synopsis);
+    }
 
-    public Integer getDuree() { return duree; }
-    public void setDuree(Integer duree) { this.duree = duree; }
-
-    public String getSynopsis() { return synopsis; }
-    public void setSynopsis(String synopsis) { this.synopsis = synopsis; }
+    @Override
+    public int hashCode() {
+        return Objects.hash(titre, annee, duree, synopsis);
+    }
 }
-
-
-
-
-
-

@@ -1,89 +1,116 @@
 package fr.eni.tp.filmotheque.controller;
 
 import fr.eni.tp.filmotheque.bll.FilmService;
+import fr.eni.tp.filmotheque.bll.GenreService;
 import fr.eni.tp.filmotheque.bo.Film;
 import fr.eni.tp.filmotheque.bo.Genre;
 import fr.eni.tp.filmotheque.bo.Participant;
 import fr.eni.tp.filmotheque.dto.FilmDto;
 import jakarta.validation.Valid;
+import org.springframework.beans.BeanUtils;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.annotation.ApplicationScope;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@Controller
 
+@Controller
+//@SessionAttributes("genresEnSession")
 public class FilmController {
 
-    private final FilmService filmService;
+    private FilmService filmService;
+    private GenreService genreService;
 
-    public FilmController(FilmService filmService) {
+    public FilmController(FilmService filmService, GenreService genreService) {
+
         this.filmService = filmService;
+        this.genreService = genreService;
     }
 
-    // Liste des films
-    @GetMapping("/films")
-    public String afficherFilms(Model model) {
-        List<Film> films = filmService.consulterFilms();
-        model.addAttribute("films", films);
-        return "view-films";
-    }
 
-    // Détail d’un film
     @GetMapping("/films/detail")
-    public String afficherUnFilm(@RequestParam("id") long id, Model model) {
-        Film film = filmService.consulterFilmParId(id);
+    public String afficherUnFilm(@RequestParam(name="id") Integer identifiant, Model model) {
+
+        Film film = this.filmService.consulterFilmParId(identifiant);
+        System.out.println(film);
+
         model.addAttribute("film", film);
         return "view-film-detail";
     }
 
-    // Formulaire création d’un film
+
+    @GetMapping("/films")
+    public String afficherFilms(Model model) {
+
+        List<Film> films = this.filmService.consulterFilms();
+        for (Film film : films) {
+            System.out.println(film);
+        }
+
+        model.addAttribute("films", films);
+
+        return "view-films";
+    }
+
     @GetMapping("/films/creer")
-    public String afficherFormulaire(Model model) {
-        model.addAttribute("filmDto", new FilmDto());
-        model.addAttribute("genresEnSession", filmService.consulterGenres());
-        model.addAttribute("participants", filmService.consulterParticipants());
+    public String afficherFormulaireFilm(Model  model) {
+        FilmDto  filmDto = (FilmDto) model.getAttribute("filmDto");
+        if(filmDto == null){
+            model.addAttribute("filmDto", new FilmDto());
+        }
 
         return "view-film-form";
     }
+    @GetMapping({"/","/accueil"})
+    public String accueil(){
+        return "accueil";
+    }
 
-    // POST création d’un film
     @PostMapping("/films/creer")
-    public String creerFilm(@Valid @ModelAttribute("filmDto") FilmDto filmDto,
-                            BindingResult bindingResult,
-                            Model model) {
+    public String creerFilm(@Valid  FilmDto filmDto, BindingResult resultat, RedirectAttributes redirectAttr) {
 
-        if (bindingResult.hasErrors()) {
-            model.addAttribute("genresEnSession", filmService.consulterGenres());
-            model.addAttribute("participants", filmService.consulterParticipants());
-            return "view-film-form";
+        if(resultat.hasErrors()) {
+
+            redirectAttr.addFlashAttribute( "org.springframework.validation.BindingResult.filmDto", resultat);
+            redirectAttr.addFlashAttribute("filmDto", filmDto);
+            return "redirect:/films/creer";
         }
 
-        // Transformation FilmDto -> Film
-        Film film = new Film();
-        film.setTitre(filmDto.getTitre());
-        film.setAnnee(filmDto.getAnnee());
-        film.setDuree(filmDto.getDuree());
-        film.setSynopsis(filmDto.getSynopsis());
-        film.setGenre(filmService.consulterGenreParId(filmDto.getGenreId()));
-        film.setRealisateur (filmService.consulterParticipantParId(filmDto.getRealisateurId()));
-        List<Participant> acteurs = new ArrayList<>();
-        for (long acteurId : filmDto.getActeursId()) {
-            acteurs.add(filmService.consulterParticipantParId(acteurId));
 
+        Film film = new Film();
+        BeanUtils.copyProperties(filmDto, film);
+        Genre genre = genreService.findGenreById(filmDto.getGenreId());
+        //Genre genre = new Genre(filmDto.getGenreId());
+        film.setGenre(genre);
+        Participant realisateur = filmService.consulterParticipantParId(filmDto.getRealisateurId());
+        film.setRealisateur(realisateur);
+        Participant acteur=null;
+        List<Participant> acteurs= new ArrayList<Participant>();
+        for(long idActeur: filmDto.getActeursIds()){
+             acteurs.add(filmService.consulterParticipantParId(idActeur));
         }
         film.setActeurs(acteurs);
 
-        // Sauvegarde via le service bouchon
         filmService.creerFilm(film);
 
-        return "redirect:/films";
+        return "redirect:/films/detail?id=" +  film.getId();
     }
 
 
+    //Mise en commentaire car genres mis dans le contexte application
+    /*
+    @ModelAttribute("genresEnSession")
+    @ApplicationScope
+    public List<Genre> chargerGenres(){
+        System.out.println("Chargement en Session - GENRES");
+        return filmService.consulterGenres();
+    }
+*/
+
 }
-
-
