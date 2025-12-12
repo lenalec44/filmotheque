@@ -15,18 +15,24 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 public class WebSecurityConfig {
 
-
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .authorizeHttpRequests((requests) -> requests
-                        .requestMatchers("/", "/accueil","/css/*","/images/*").permitAll()
-                        .requestMatchers(HttpMethod.GET,"/films/creer","/css/*","/images/*").hasRole("ADMIN")
-
+                .authorizeHttpRequests(requests -> requests
+                        .requestMatchers("/", "/accueil", "/css/*", "/images/*").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/films/creer").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
-                .formLogin(Customizer.withDefaults())
-                .logout((logout) -> logout.permitAll());
+                .formLogin(form -> form
+                        .loginPage("/login")                  // ta page login.html
+                        .defaultSuccessUrl("/accueil", true)  // redirection après login
+                        .permitAll()
+                )
+                .logout(logout -> logout
+                        .logoutUrl("/logout")
+                        .logoutSuccessUrl("/accueil")
+                        .permitAll()
+                );
 
         return http.build();
     }

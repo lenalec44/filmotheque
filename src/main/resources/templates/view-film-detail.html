@@ -1,5 +1,7 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en"
+      xmlns:th="https://www.thymeleaf.org"
+      xmlns:sec="https://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <title>TP ENI</title>
@@ -17,6 +19,15 @@
         <ul>
             <li><a th:href="@{/films}">Films</a></li>
             <li><a th:href="@{/films/creer}">Creer</a></li>
+            <li>
+                <!-- Affiché si l'utilisateur n'est PAS connecté -->
+                <a sec:authorize="isAnonymous()" th:href="@{/login}">Se connecter</a>
+
+                <!-- Affiché si l'utilisateur EST connecté -->
+                <form sec:authorize="isAuthenticated()" th:action="@{/logout}" method="post" style="display:inline;">
+                    <button type="submit">Se déconnecter</button>
+                </form>
+            </li>
         </ul>
     </nav>
 </header>

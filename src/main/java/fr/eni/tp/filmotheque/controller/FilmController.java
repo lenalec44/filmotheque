@@ -34,6 +34,11 @@ public class FilmController {
     }
 
 
+    @GetMapping("/login")
+    public String login() {
+        return "login"; // correspond à login.html
+    }
+
     @GetMapping("/films/detail")
     public String afficherUnFilm(@RequestParam(name="id") Integer identifiant, Model model) {
 
